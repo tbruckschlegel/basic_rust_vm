@@ -17,7 +17,7 @@ This project implements a basic virtual machine (VM) that executes a set of inst
 
 ## Table of Contents
 
-1.  [Structs and Enums](tructs and Enums)
+1.  [Structs and Enums](#Structs and Enums)
 2.  [VM Methods](VM Methods)
 3.  [Main Program Execution](Main Program Execution)
 4.  [Instruction Set](Instruction Set)
