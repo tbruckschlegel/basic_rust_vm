@@ -29,12 +29,12 @@ enum Instruction {
     FreeMemory(usize),        // Free a memory block
     StoreToMemory(usize, usize, usize), // Store a byte in memory at a specific address
     LoadFromMemory(usize, usize), // Load a byte from memory at a specific address
-    Call(usize),              // Call a function at the specific PC offset
+    Call(usize),              // Call a function at the specific instruction pointer offset
     Return,                   // Return from a function
 }
 
 struct VM {
-    pc: usize,                            // Program counter
+    ip: usize,                            // Instruction pointer
     program: Vec<Instruction>,            // The program instructions
     registers: Vec<i32>,                  // 8 registers
     memory: HashMap<usize, MemoryRegion>, // Memory regions
@@ -45,7 +45,7 @@ struct VM {
 impl VM {
     fn new(program: Vec<Instruction>) -> Self {
         VM {
-            pc: 0,
+            ip: 0,
             program,
             registers: vec![0; 8], // 8 registers initialized to zero
             memory: HashMap::new(),
@@ -56,12 +56,12 @@ impl VM {
 
     fn run(&mut self) {
         loop {
-            if self.pc >= self.program.len() {
+            if self.ip >= self.program.len() {
                 break;
             }
 
-            let instruction = &self.program[self.pc];
-            self.pc += 1;
+            let instruction = &self.program[self.ip];
+            self.ip += 1;
 
             match instruction {
                 Instruction::SetReg(register_index, value) => {
@@ -100,14 +100,14 @@ impl VM {
                 Instruction::Lte(register_a, register_b, target_register) => {
                     self.lte(*register_a, *register_b, *target_register);
                 }
-                Instruction::Jump(pc_offset) => {
-                    self.jump(*pc_offset);
+                Instruction::Jump(ip_offset) => {
+                    self.jump(*ip_offset);
                 }
-                Instruction::JumpIfZero(register_index, pc_offset) => {
-                    self.jump_if_zero(*register_index, *pc_offset);
+                Instruction::JumpIfZero(register_index, ip_offset) => {
+                    self.jump_if_zero(*register_index, *ip_offset);
                 }
-                Instruction::JumpIfNonZero(register_index, pc_offset) => {
-                    self.jump_if_non_zero(*register_index, *pc_offset);
+                Instruction::JumpIfNonZero(register_index, ip_offset) => {
+                    self.jump_if_non_zero(*register_index, *ip_offset);
                 }
                 Instruction::Print(register_index) => {
                     self.print(*register_index);
@@ -125,8 +125,8 @@ impl VM {
                 Instruction::LoadFromMemory(address, register_index) => {
                     self.load_from_memory(*address, *register_index);
                 }
-                Instruction::Call(pc_offset) => {
-                    self.call(*pc_offset);
+                Instruction::Call(ip_offset) => {
+                    self.call(*ip_offset);
                 }
                 Instruction::Return => {
                     self.return_from_function();
@@ -292,24 +292,24 @@ impl VM {
         }
     }
 
-    fn jump(&mut self, pc_offset: usize) {
-        if self.pc + pc_offset < self.program.len() {
-            self.pc += pc_offset;
-            println!("Jumping to instruction {}", self.pc);
+    fn jump(&mut self, ip_offset: usize) {
+        if self.ip + ip_offset < self.program.len() {
+            self.ip += ip_offset;
+            println!("Jumping to instruction {}", self.ip);
         } else {
             println!("Error: Invalid jump target.");
         }
     }
 
-    fn jump_if_zero(&mut self, register_index: usize, pc_offset: usize) {
+    fn jump_if_zero(&mut self, register_index: usize, ip_offset: usize) {
         if self.registers[register_index] == 0 {
-            self.jump(pc_offset);
+            self.jump(ip_offset);
         }
     }
 
-    fn jump_if_non_zero(&mut self, register_index: usize, pc_offset: usize) {
+    fn jump_if_non_zero(&mut self, register_index: usize, ip_offset: usize) {
         if self.registers[register_index] != 0 {
-            self.jump(pc_offset);
+            self.jump(ip_offset);
         }
     }
 
@@ -326,16 +326,16 @@ impl VM {
 
     fn call(&mut self, target_pc: usize) {
         // Push the return address to the stack
-        self.stack.push(self.pc);
+        self.stack.push(self.ip);
         // Jump to the function address offset
-        self.pc += target_pc;
-        println!("Calling function at {}", self.pc);
+        self.ip += target_pc;
+        println!("Calling function at {}", self.ip);
     }
 
     fn return_from_function(&mut self) {
         // Pop the return address from the stack and continue
         if let Some(return_address) = self.stack.pop() {
-            self.pc = return_address;
+            self.ip = return_address;
         }
     }
 }

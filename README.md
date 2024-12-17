@@ -69,11 +69,11 @@ enum Instruction {
 
 ### `VM`
 
-The `VM` struct represents the virtual machine and contains the state of the VM, including the program counter, registers, memory, and other internal variables.
+The `VM` struct represents the virtual machine and contains the state of the VM, including the instruction pointer, registers, memory, and other internal variables.
 
 ```
 struct VM {
-    pc: usize,                            // Program counter
+    ip: usize,                            // Instruction pointer
     program: Vec<Instruction>,            // The program instructions
     registers: Vec<i32>,                  // 8 registers for computation
     memory: HashMap<usize, MemoryRegion>, // Memory regions (mapped by address)
@@ -159,7 +159,7 @@ Below is the list of instructions supported by the VM:
 
 ### Function Calls:
 
-*   `Call(usize)`: Call a function at a specific program counter offset.
+*   `Call(usize)`: Call a function at a specific instruction pointer offset.
 *   `Return`: Return from the function and continue execution from the return address.
 
 ### Register Operations:
