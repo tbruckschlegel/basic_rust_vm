@@ -340,6 +340,7 @@ impl VM {
     }
 }
 
+// Our example program
 fn main() {
     let program = vec![
         Instruction::AllocateMemory(100),    // Allocate 100 bytes
@@ -366,4 +367,130 @@ fn main() {
 
     let mut vm = VM::new(program);
     vm.run();
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*; // Bring the entire VM module into the test scope
+
+    #[test]
+    fn test_set_register() {
+        let mut vm = VM::new(vec![
+            Instruction::SetReg(0, 42), // Set reg0 to 42
+            Instruction::SetReg(1, 100), // Set reg1 to 100
+        ]);
+
+        vm.run();
+
+        // Assert that the registers were set correctly
+        assert_eq!(vm.registers[0], 42);
+        assert_eq!(vm.registers[1], 100);
+    }
+
+    #[test]
+    fn test_addition() {
+        let mut vm = VM::new(vec![
+            Instruction::SetReg(0, 42),        // Set reg0 to 42
+            Instruction::SetReg(1, 58),        // Set reg1 to 58
+            Instruction::Add(0, 1, 2),         // Add reg0 and reg1, store in reg2
+        ]);
+
+        vm.run();
+
+        // Assert that the addition was performed correctly
+        assert_eq!(vm.registers[2], 100);
+    }
+
+    #[test]
+    fn test_subtraction() {
+        let mut vm = VM::new(vec![
+            Instruction::SetReg(0, 42),        // Set reg0 to 42
+            Instruction::SetReg(1, 58),        // Set reg1 to 58
+            Instruction::Sub(1, 0, 2),         // Subtract reg0 from reg1, store in reg2
+        ]);
+
+        vm.run();
+
+        // Assert that the subtraction was performed correctly
+        assert_eq!(vm.registers[2], 16); // 58 - 42 = 16
+    }
+
+    #[test]
+    fn test_allocate_and_free_memory() {
+        let mut vm = VM::new(vec![
+            Instruction::AllocateMemory(100),   // Allocate 100 bytes
+            Instruction::AllocateMemory(200),   // Allocate another 200 bytes
+            Instruction::FreeMemory(0),         // Free memory at address 0
+        ]);
+
+        vm.run();
+
+        // Assert that the memory was allocated correctly and that the memory at address 0 was freed
+        assert!(vm.memory.contains_key(&100)); // Memory at address 100 (next available address)
+        assert!(!vm.memory.contains_key(&0));  // Memory at address 0 should have been freed
+    }
+
+    #[test]
+    fn test_memory_store_and_load() {
+        let mut vm = VM::new(vec![
+            Instruction::AllocateMemory(100),    // Allocate 100 bytes
+            Instruction::SetReg(0, 42),          // Set reg0 to 42
+            Instruction::StoreToMemory(0, 0, 0), // Store reg0 value into memory at address 0
+            Instruction::SetReg(1, 0),           // Set reg1 to 0 (for testing load)
+            Instruction::LoadFromMemory(0, 1),   // Load memory at address 0 into reg1
+        ]);
+
+        vm.run();
+
+        // Assert that the value was stored and loaded correctly
+        assert_eq!(vm.registers[1], 42); // reg1 should contain the value 42 loaded from memory
+    }
+
+    #[test]
+    fn test_jump_if_zero() {
+        let mut vm = VM::new(vec![
+            Instruction::SetReg(0, 0),           // Set reg0 to 0
+            Instruction::JumpIfZero(0, 2),       // Jump 2 instructions ahead if reg0 is 0
+            Instruction::SetReg(1, 100),         // This will be skipped due to the jump
+            Instruction::SetReg(2, 200),         // This will be executed after the jump
+        ]);
+
+        vm.run();
+
+        // Assert that reg2 was set (since reg0 was 0, we jumped over the previous instructions)
+        assert_eq!(vm.registers[2], 200);
+    }
+
+    #[test]
+    fn test_halt_execution() {
+        let mut vm = VM::new(vec![
+            Instruction::SetReg(0, 42), // Set reg0 to 42
+            Instruction::Halt,           // Halt the program
+            Instruction::SetReg(1, 100), // This should not be executed
+        ]);
+
+        vm.run();
+
+        // Assert that the program halts and the second instruction does not execute
+        assert_eq!(vm.registers[0], 42);
+        assert_eq!(vm.registers[1], 0); // reg1 should still be 0 since the second instruction was never executed
+    }
+
+    #[test]
+    fn test_function_call_and_return() {
+        let mut vm = VM::new(vec![
+            Instruction::SetReg(0, 42),    // Set reg0 to 42
+            Instruction::Call(4),           // Call function at offset 4
+            Instruction::Print(0),          // Print reg0 after return (should be 42)
+            // Function body starts here (offset 4)
+            Instruction::SetReg(0, 99),     // Set reg0 to 99 inside function
+            Instruction::Return,            // Return from function
+        ]);
+
+        vm.run();
+
+        // Assert that the function call worked correctly and returned to the correct point
+        assert_eq!(vm.registers[0], 42); // reg0 should still be 42 after returning from the function
+    }
 }
