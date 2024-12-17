@@ -2,7 +2,8 @@
 
 # Overview
 
-This project implements a basic virtual machine (VM) that executes a set of instructions. It supports operations like arithmetic, comparisons, memory management, conditional jumps, function calls, and printing values. The VM runs a sequence of instructions, modifying registers and memory as specified by the program.
+This is a hobby project that is a testbed for VM coding related stuff.
+It implements a basic virtual machine (VM) that executes a set of instructions. It supports operations like arithmetic, comparisons, memory management, conditional jumps, function calls, and printing values. The VM runs a sequence of instructions, modifying registers and memory as specified by the program.
 
 ## Features
 
@@ -196,7 +197,11 @@ cargo test
 
 ## What's next?
 ```
-more features, like loading a program, opcodes, a basic compiler for the VM language...
+* organize code into seperate files
+* opcodes
+* save/load support of programs
+* basic compiler for the VM language
+* non CPU execution target
 ```
 
 
