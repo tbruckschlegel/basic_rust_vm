@@ -1,8 +1,6 @@
 # A simple VM in Rust
 
-# Virtual Machine (VM) Documentation
-
-## Overview
+# Overview
 
 This project implements a basic virtual machine (VM) that executes a set of instructions. It supports operations like arithmetic, comparisons, memory management, conditional jumps, function calls, and printing values. The VM runs a sequence of instructions, modifying registers and memory as specified by the program.
 
@@ -17,10 +15,10 @@ This project implements a basic virtual machine (VM) that executes a set of inst
 
 ## Table of Contents
 
-1.  [Structs and Enums](#Structs and Enums)
-2.  [VM Methods](VM Methods)
-3.  [Main Program Execution](Main Program Execution)
-4.  [Instruction Set](Instruction Set)
+1.  [Structs and Enums](#Structs-and-Enums)
+2.  [VM Methods](#VM-Methods)
+3.  [Main Program Execution](#Main-Program-Execution)
+4.  [Instruction Set](#Instruction-Set)
 
 ## Structs and Enums
 
@@ -29,13 +27,19 @@ This project implements a basic virtual machine (VM) that executes a set of inst
 This struct represents a memory block managed by the VM.
 
 
-`struct MemoryRegion {     size: usize,   // Size of the allocated memory block     data: Vec<u8>, // Raw byte data }`
+```
+struct MemoryRegion {
+    size: usize,   // Size of the allocated memory block
+    data: Vec<u8>, // Raw byte data
+}
+```
 
 ### `Instruction`
 
 The `Instruction` enum represents the different operations supported by the VM.
 
-`enum Instruction {
+```
+enum Instruction {
     SetReg(usize, i32),              // Set value in register
     Add(usize, usize, usize),        // Add two registers
     Sub(usize, usize, usize),        // Subtract two registers
@@ -59,24 +63,27 @@ The `Instruction` enum represents the different operations supported by the VM.
     LoadFromMemory(usize, usize),    // Load value from memory to register
     Call(usize),                     // Call a function at a specific offset
     Return,                          // Return from function
-}`
+}
+```
 
 ### `VM`
 
 The `VM` struct represents the virtual machine and contains the state of the VM, including the program counter, registers, memory, and other internal variables.
 
-`struct VM {
+```
+struct VM {
     pc: usize,                            // Program counter
     program: Vec<Instruction>,            // The program instructions
     registers: Vec<i32>,                  // 8 registers for computation
     memory: HashMap<usize, MemoryRegion>, // Memory regions (mapped by address)
     next_free_address: usize,             // Tracks next free memory address
     stack: Vec<usize>,                    // Stack for function calls
-}`
+}
+```
 
 ## VM Methods
 
-### `VM::new(program: Vec<Instruction>) -> Self`
+### `VM::new(program: Vec<Instruction>)`
 
 Initializes a new virtual machine with the given program (a sequence of instructions).
 
@@ -186,5 +193,11 @@ cargo run --release
 ```
 cargo test
 ```
+
+## What's next?
+```
+more features, like loading a program, opcodes, a basic compiler for the VM language...
+```
+
 
 
